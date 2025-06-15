@@ -100,6 +100,19 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+
+    // Debug file information
+    console.log("File selected:", {
+      name: file.name,
+      type: file.type,
+      size: file.size / 1024 + "KB",
+    });
+
+    setImageFile(file);
+  }
+
   console.log(formData, "productList");
 
   return (
@@ -144,6 +157,10 @@ function AdminProducts() {
             setImageLoadingState={setImageLoadingState}
             imageLoadingState={imageLoadingState}
             isEditMode={currentEditedId !== null}
+            onChange={(url) => {
+              console.log("Image URL from upload component:", url);
+              setUploadedImageUrl(url); // Make sure URL is stored in parent component state
+            }}
           />
           <div className="py-6">
             <CommonForm

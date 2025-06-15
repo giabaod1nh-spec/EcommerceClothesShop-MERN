@@ -13,8 +13,9 @@ function ProductImageUpload({
   uploadedImageUrl,
   setUploadedImageUrl,
   setImageLoadingState,
-  isEditMode,
+  isEditMode = false,
   isCustomStyling = false,
+  onChange = () => {}, // Add this line with a default empty function
 }) {
   const inputRef = useRef(null);
 
@@ -49,14 +50,30 @@ function ProductImageUpload({
     setImageLoadingState(true);
     const data = new FormData();
     data.append("my_file", imageFile);
-    const response = await axios.post(
-      "http://localhost:5000/api/admin/products/upload-image",
-      data
-    );
-    console.log(response, "response");
 
-    if (response?.data?.success) {
-      setUploadedImageUrl(response.data.result.url);
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/admin/products/upload-image",
+        data
+      );
+
+      console.log("Image upload response:", response.data); // Debug
+
+      if (response?.data?.success) {
+        const imageUrl = response.data.result.url;
+        console.log("Setting image URL:", imageUrl); // Debug
+
+        setUploadedImageUrl(imageUrl);
+
+        // Make sure to also call the onChange prop if it exists
+        if (onChange) {
+          onChange(imageUrl);
+        }
+
+        setImageLoadingState(false);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
       setImageLoadingState(false);
     }
   }

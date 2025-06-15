@@ -14,7 +14,11 @@ function AdminDashboard() {
   console.log(uploadedImageUrl, "uploadedImageUrl");
 
   function handleUploadFeatureImage() {
+    console.log("About to dispatch with URL:", uploadedImageUrl); // Log URL before dispatching
+
     dispatch(addFeatureImage(uploadedImageUrl)).then((data) => {
+      console.log("Feature image response:", data); // Log the response
+
       if (data?.payload?.success) {
         dispatch(getFeatureImages());
         setImageFile(null);
@@ -39,7 +43,11 @@ function AdminDashboard() {
         setImageLoadingState={setImageLoadingState}
         imageLoadingState={imageLoadingState}
         isCustomStyling={true}
-        // isEditMode={currentEditedId !== null}
+        isEditMode={false}
+        onChange={(url) => {
+          console.log("Image URL from upload component:", url);
+          setUploadedImageUrl(url); // Make sure URL is stored in parent component state
+        }}
       />
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
         Upload
@@ -56,6 +64,18 @@ function AdminDashboard() {
             ))
           : null}
       </div>
+      {/* Add this near your form to test the image URL directly */}
+      {uploadedImageUrl && (
+        <div className="mt-4">
+          <h3>Test Image:</h3>
+          <img
+            src={uploadedImageUrl}
+            alt="Test"
+            className="w-48 h-48 object-cover border rounded"
+          />
+          <div className="mt-2 text-xs break-all">{uploadedImageUrl}</div>
+        </div>
+      )}
     </div>
   );
 }
