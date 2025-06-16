@@ -27,7 +27,9 @@ function AddressCard({
         <Label>City: {addressInfo?.city}</Label>
         <Label>pincode: {addressInfo?.pincode}</Label>
         <Label>Phone: {addressInfo?.phone}</Label>
-        <Label>Notes: {addressInfo?.notes}</Label>
+        {addressInfo?.notes && addressInfo.notes.trim() !== "" && (
+          <Label>Notes: {addressInfo?.notes}</Label>
+        )}
       </CardContent>
       <CardFooter className="p-3 flex justify-between">
         <Button onClick={() => handleEditAddress(addressInfo)}>Edit</Button>

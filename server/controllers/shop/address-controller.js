@@ -4,7 +4,8 @@ const addAddress = async (req, res) => {
   try {
     const { userId, address, city, pincode, phone, notes } = req.body;
 
-    if (!userId || !address || !city || !pincode || !phone || !notes) {
+    // Remove notes from required validation
+    if (!userId || !address || !city || !pincode || !phone) {
       return res.status(400).json({
         success: false,
         message: "Invalid data provided!",
@@ -16,7 +17,7 @@ const addAddress = async (req, res) => {
       address,
       city,
       pincode,
-      notes,
+      notes: notes || "", // Make notes optional with default empty string
       phone,
     });
 

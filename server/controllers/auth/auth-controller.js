@@ -19,7 +19,8 @@ const registerUser = async (req, res) => {
       userName,
       email,
       password: hashPassword,
-      role: "admin", // Add this line to create admin user
+      // Remove this line to get default "user" role
+      // role: "admin" 
     });
 
     await newUser.save();

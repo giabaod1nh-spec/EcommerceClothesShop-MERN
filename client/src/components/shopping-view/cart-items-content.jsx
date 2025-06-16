@@ -3,6 +3,7 @@ import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteCartItem, updateCartQuantity } from "@/store/shop/cart-slice";
 import { useToast } from "../ui/use-toast";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 function UserCartItemsContent({ cartItem }) {
   const { user } = useSelector((state) => state.auth);
@@ -105,11 +106,13 @@ function UserCartItemsContent({ cartItem }) {
       </div>
       <div className="flex flex-col items-end">
         <p className="font-semibold">
-          $
-          {(
-            (cartItem?.salePrice > 0 ? cartItem?.salePrice : cartItem?.price) *
-            cartItem?.quantity
-          ).toFixed(2)}
+          {formatCurrency(
+            (
+              (cartItem?.salePrice > 0
+                ? cartItem?.salePrice
+                : cartItem?.price) * cartItem?.quantity
+            ).toFixed(2)
+          )}
         </p>
         <Trash
           onClick={() => handleCartItemDelete(cartItem)}

@@ -18,6 +18,7 @@ import {
   resetOrderDetails,
 } from "@/store/shop/order-slice";
 import { Badge } from "../ui/badge";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 function ShoppingOrders() {
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -76,7 +77,9 @@ function ShoppingOrders() {
                         {orderItem?.orderStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell>${orderItem?.totalAmount}</TableCell>
+                    <TableCell>
+                      {formatCurrency(orderItem?.totalAmount)}
+                    </TableCell>
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}

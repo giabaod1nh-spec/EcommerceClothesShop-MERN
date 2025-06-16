@@ -100,7 +100,9 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   }
 
   function isFormValid() {
-    return Object.keys(formData)
+    // Exclude notes from validation - only check required fields
+    const requiredFields = ["address", "city", "phone", "pincode"];
+    return requiredFields
       .map((key) => formData[key].trim() !== "")
       .every((item) => item);
   }

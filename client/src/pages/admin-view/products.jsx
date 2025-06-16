@@ -44,8 +44,38 @@ function AdminProducts() {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
+  function isFormValid() {
+    // Existing validation
+    const basicValidation = Object.keys(formData)
+      .filter((currentKey) => currentKey !== "averageReview")
+      .map((key) => formData[key] !== "")
+      .every((item) => item);
+
+    // Price validation
+    const price = parseFloat(formData.price) || 0;
+    const salePrice = parseFloat(formData.salePrice) || 0;
+
+    // If sale price exists and is greater than or equal to price, form is invalid
+    const priceValidation = salePrice === 0 || salePrice < price;
+
+    return basicValidation && priceValidation;
+  }
+
   function onSubmit(event) {
     event.preventDefault();
+
+    // Check price validation before submitting
+    const price = parseFloat(formData.price) || 0;
+    const salePrice = parseFloat(formData.salePrice) || 0;
+
+    if (salePrice > 0 && salePrice >= price) {
+      toast({
+        title: "Invalid Price",
+        description: "Sale price must be less than regular price!",
+        variant: "destructive",
+      });
+      return;
+    }
 
     currentEditedId !== null
       ? dispatch(
@@ -69,7 +99,7 @@ function AdminProducts() {
             image: uploadedImageUrl,
           })
         ).then((data) => {
-          if (data?.payload?.success) {
+          if (data.payload.success) {
             dispatch(fetchAllProducts());
             setOpenCreateProductsDialog(false);
             setImageFile(null);
@@ -89,13 +119,6 @@ function AdminProducts() {
     });
   }
 
-  function isFormValid() {
-    return Object.keys(formData)
-      .filter((currentKey) => currentKey !== "averageReview")
-      .map((key) => formData[key] !== "")
-      .every((item) => item);
-  }
-
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
@@ -111,6 +134,27 @@ function AdminProducts() {
     });
 
     setImageFile(file);
+  }
+
+  // Add this function to show immediate feedback
+  function handleFormChange(field, value) {
+    const newFormData = { ...formData, [field]: value };
+    setFormData(newFormData);
+
+    // Check price validation for price and salePrice fields
+    if (field === "price" || field === "salePrice") {
+      const price = parseFloat(field === "price" ? value : formData.price) || 0;
+      const salePrice =
+        parseFloat(field === "salePrice" ? value : formData.salePrice) || 0;
+
+      if (salePrice > 0 && salePrice >= price) {
+        toast({
+          title: "Price Warning",
+          description: "Sale price should be less than regular price",
+          variant: "destructive",
+        });
+      }
+    }
   }
 
   console.log(formData, "productList");
@@ -166,7 +210,14 @@ function AdminProducts() {
             <CommonForm
               onSubmit={onSubmit}
               formData={formData}
-              setFormData={setFormData}
+              setFormData={(newData) => {
+                const changedField = Object.keys(newData).find(
+                  (key) => newData[key] !== formData[key]
+                );
+                if (changedField) {
+                  handleFormChange(changedField, newData[changedField]);
+                }
+              }}
               buttonText={currentEditedId !== null ? "Edit" : "Add"}
               formControls={addProductFormElements}
               isBtnDisabled={!isFormValid()}
