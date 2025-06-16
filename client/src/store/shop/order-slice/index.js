@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { useParams, useLocation } from "react-router-dom";
 
 const initialState = {
   approvalURL: null,
@@ -16,7 +17,8 @@ export const createNewOrder = createAsyncThunk(
       "http://localhost:5000/api/shop/order/create",
       orderData
     );
-
+    const urlPayment = response.data.paymentUrl;
+    window.open(urlPayment, " _blank");
     return response.data;
   }
 );

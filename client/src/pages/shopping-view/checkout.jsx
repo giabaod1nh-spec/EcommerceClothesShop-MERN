@@ -5,7 +5,6 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { Navigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from "@/utils/formatCurrency";
 
@@ -70,7 +69,7 @@ function ShoppingCheckout() {
         city: currentSelectedAddress?.city,
         pincode: currentSelectedAddress?.pincode,
         phone: currentSelectedAddress?.phone,
-        notes: currentSelectedAddress?.notes,
+        notes: currentSelectedAddress?.notes || "",
       },
       orderStatus: "pending",
       paymentMethod: "paypal",
@@ -123,8 +122,8 @@ function ShoppingCheckout() {
           <div className="mt-4 w-full">
             <Button onClick={handleInitiatePaypalPayment} className="w-full">
               {isPaymentStart
-                ? "Processing Paypal Payment..."
-                : "Checkout with Paypal"}
+                ? "Processing VNPAY Payment..."
+                : "Checkout with VNPAY"}
             </Button>
           </div>
         </div>
