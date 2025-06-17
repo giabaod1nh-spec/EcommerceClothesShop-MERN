@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
+import { Search } from "lucide-react";
 
 function SearchProducts() {
   const [keyword, setKeyword] = useState("");
@@ -85,16 +86,17 @@ function SearchProducts() {
   console.log(searchResults, "searchResults");
 
   return (
-    <div className="container mx-auto md:px-6 px-4 py-8">
+    <div className="container mx-auto md:px-6 px-4 py-8 mt-20">
       <div className="flex justify-center mb-8">
-        <div className="w-full flex items-center">
+        <div className="w-full max-w-3xl flex items-center relative">
           <Input
             value={keyword}
             name="keyword"
             onChange={(event) => setKeyword(event.target.value)}
-            className="py-6"
+            className="py-6 pl-10"
             placeholder="Search Products..."
           />
+          <Search className="absolute left-3 text-muted-foreground h-5 w-5" />
         </div>
       </div>
       {!searchResults.length ? (

@@ -46,10 +46,11 @@ const createOrder = async (req, res) => {
       paymentId,
       payerId,
     });
-
+    console.log(orderId);
     const order = await Order.findById(orderId);
-    if(!order){
-      const newOrder = await newlyCreatedOrder.save()
+    console.log(order);
+    if (!order) {
+      const newOrder = await newlyCreatedOrder.save();
       orderId = newOrder._id;
     }
     const body = createPaymentEndpoint(paramVnpay, res, orderId);
@@ -144,7 +145,7 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
-    await Order.findByIdAndUpdate(id, { paymentStatus : 'paid' });
+    await Order.findByIdAndUpdate(id, { paymentStatus: "paid" });
 
     res.status(200).json({
       success: true,
@@ -157,12 +158,12 @@ const updateOrderStatus = async (req, res) => {
       message: "Some error occured!",
     });
   }
-}; 
+};
 
 module.exports = {
   createOrder,
   capturePayment,
   getAllOrdersByUser,
   getOrderDetails,
-  updateOrderStatus
+  updateOrderStatus,
 };
