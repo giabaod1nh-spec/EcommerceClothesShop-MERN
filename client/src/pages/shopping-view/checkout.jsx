@@ -57,7 +57,7 @@ function ShoppingCheckout() {
               document.title,
               window.location.pathname
             );
-            navigate("/shop/payment-success");
+            navigate("/shop/checkout");
           });
         }
       } else {
