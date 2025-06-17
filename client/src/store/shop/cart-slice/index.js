@@ -60,6 +60,14 @@ export const updateCartQuantity = createAsyncThunk(
   }
 );
 
+export const clearCart = createAsyncThunk("cart/clearCart", async (userId) => {
+  const response = await axios.delete(
+    `http://localhost:5000/api/shop/cart/user/${userId}/clear`
+  );
+
+  return response.data;
+});
+
 const shoppingCartSlice = createSlice({
   name: "shoppingCart",
   initialState,
@@ -109,6 +117,16 @@ const shoppingCartSlice = createSlice({
       .addCase(deleteCartItem.rejected, (state) => {
         state.isLoading = false;
         state.cartItems = [];
+      })
+      .addCase(clearCart.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(clearCart.fulfilled, (state) => {
+        state.isLoading = false;
+        state.cartItems = { items: [] }; // Reset cart to empty
+      })
+      .addCase(clearCart.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });
