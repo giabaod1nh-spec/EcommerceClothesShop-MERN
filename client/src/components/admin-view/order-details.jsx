@@ -12,6 +12,14 @@ import {
 } from "@/store/admin/order-slice";
 import { useToast } from "../ui/use-toast";
 import { formatCurrency } from "@/utils/formatCurrency";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 const initialFormData = {
   status: "",
@@ -44,8 +52,8 @@ function AdminOrderDetailsView({ orderDetails }) {
   }
 
   return (
-    <DialogContent className="sm:max-w-[600px]">
-      <div className="grid gap-6">
+    <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-hidden flex flex-col">
+      <div className="grid gap-6 overflow-y-auto pr-1">
         <div className="grid gap-2">
           <div className="flex mt-6 items-center justify-between">
             <p className="font-medium">Order ID</p>
@@ -85,20 +93,59 @@ function AdminOrderDetailsView({ orderDetails }) {
           </div>
         </div>
         <Separator />
-        <div className="grid gap-4">
-          <div className="grid gap-2">
-            <div className="font-medium">Order Details</div>
-            <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
-                    <li className="flex items-center justify-between">
-                      <span>Title: {item.title}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: {formatCurrency(item.price)}</span>
-                    </li>
+        <div className="grid gap-2">
+          <div className="font-medium">Order Details</div>
+          <div className="max-h-[250px] overflow-y-auto border rounded-md">
+            <Table>
+              <TableHeader className="bg-muted/50 sticky top-0">
+                <TableRow>
+                  <TableHead className="w-[40%]">Product</TableHead>
+                  <TableHead className="text-center w-[20%]">
+                    Quantity
+                  </TableHead>
+                  <TableHead className="text-center w-[20%]">
+                    Unit Price
+                  </TableHead>
+                  <TableHead className="text-right w-[20%]">Subtotal</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orderDetails?.cartItems &&
+                orderDetails?.cartItems.length > 0 ? (
+                  orderDetails?.cartItems.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          {item.image && (
+                            <img
+                              src={item.image}
+                              alt={item.title}
+                              className="h-10 w-10 rounded-md object-cover"
+                            />
+                          )}
+                          <span className="line-clamp-2">{item.title}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {item.quantity}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {formatCurrency(item.price)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {formatCurrency(item.price * item.quantity)}
+                      </TableCell>
+                    </TableRow>
                   ))
-                : null}
-            </ul>
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-4">
+                      No items in this order
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </div>
         <div className="grid gap-4">

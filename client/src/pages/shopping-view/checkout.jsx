@@ -3,12 +3,13 @@ import img from "../../assets/account.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from "@/utils/formatCurrency";
 import moment from "moment";
 import { fetchCartItems, clearCart } from "@/store/shop/cart-slice";
+import { useNavigate } from "react-router-dom";
 
 function getCurrentDateTime() {
   return moment().format("YYYYMMDDHHmmss");
@@ -22,6 +23,7 @@ function ShoppingCheckout() {
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
   const dispatch = useDispatch();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   console.log(currentSelectedAddress, "cartItems");
 
@@ -29,43 +31,35 @@ function ShoppingCheckout() {
     const urlParams = new URLSearchParams(window.location.search);
     const vnpResponseCode = urlParams.get("vnp_ResponseCode");
     const vnpTransactionStatus = urlParams.get("vnp_TransactionStatus");
-    const vnpAmount = urlParams.get("vnp_Amount");
-    const vnpOrderInfo = urlParams.get("vnp_OrderInfo");
-    const vnpPayDate = urlParams.get("vnp_PayDate");
-    const vnpTransactionNo = urlParams.get("vnp_TransactionNo");
     const vnpTxnRef = urlParams.get("vnp_TxnRef");
-    const vnpSecureHash = urlParams.get("vnp_SecureHash");
-    console.log("responsecode: " + vnpResponseCode);
+    // ...other params...
 
     if (vnpResponseCode == "00") {
       console.log("VNPAY Payment Response:", {
         responseCode: vnpResponseCode,
         transactionStatus: vnpTransactionStatus,
-        amount: vnpAmount,
-        orderInfo: vnpOrderInfo,
-        payDate: vnpPayDate,
-        transactionNo: vnpTransactionNo,
-        txnRef: vnpTxnRef,
-        secureHash: vnpSecureHash,
+        // ...other logged values...
       });
 
       if (vnpResponseCode === "00" && vnpTransactionStatus === "00") {
-        toast({
-          title: "Thanh toán thành công!",
-          description: `Giao dịch ${vnpTransactionNo} đã được xử lý thành công.`,
-          variant: "default",
-        });
+        // Extract the order ID from local storage
+        const orderId = localStorage.getItem("currentOrderId");
 
-        // Clear the cart after successful payment
-        dispatch(clearCart(user?.id)).then(() => {
-          // Optionally navigate to a success page or order history
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
-          navigate("/shop/payment-success");
-        });
+        if (orderId) {
+          // If no orderId, just clear cart and show success
+          dispatch(clearCart(user?.id)).then(() => {
+            toast({
+              title: "Thanh toán thành công!",
+              variant: "default",
+            });
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname
+            );
+            navigate("/shop/payment-success");
+          });
+        }
       } else {
         toast({
           title: "Thanh toán thất bại!",
@@ -87,7 +81,7 @@ function ShoppingCheckout() {
       });
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [toast]);
+  }, [toast, dispatch, navigate, user?.id]);
 
   const totalCartAmount =
     cartItems && cartItems.items && cartItems.items.length > 0
@@ -156,6 +150,8 @@ function ShoppingCheckout() {
     dispatch(createNewOrder(orderData)).then((data) => {
       console.log("data response: ", data);
       if (data?.payload?.success) {
+        // Store order ID for payment status update
+        localStorage.setItem("currentOrderId", data.payload.orderId);
         const urlPaymentVNPAY = data.payload.paymentUrl;
         window.location.href = urlPaymentVNPAY;
         setIsPaymemntStart(true);
@@ -199,11 +195,13 @@ function ShoppingCheckout() {
           setCurrentSelectedAddress={setCurrentSelectedAddress}
         />
         <div className="flex flex-col gap-4">
-          {cartItems && cartItems.items && cartItems.items.length > 0
-            ? cartItems.items.map((item) => (
-                <UserCartItemsContent cartItem={item} />
-              ))
-            : null}
+          <div className="flex flex-col gap-4 max-h-[400px] overflow-y-auto">
+            {cartItems && cartItems.items && cartItems.items.length > 0
+              ? cartItems.items.map((item) => (
+                  <UserCartItemsContent cartItem={item} />
+                ))
+              : null}
+          </div>
           <div className="mt-8 space-y-4">
             <div className="flex justify-between">
               <span className="font-bold">Total</span>
