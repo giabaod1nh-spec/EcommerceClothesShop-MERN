@@ -46,7 +46,20 @@ const createOrder = async (req, res) => {
     // if(checkPayment.res.status){
     //   await newlyCreatedOrder.save();
     // }   
-    return createPaymentEndpoint(paramVnpay, res);
+    // await newlyCreatedOrder.save();
+    // console.log("add order to db")
+
+    try {
+      console.log('Order data before save:', newlyCreatedOrder);
+    const savedOrder = await newlyCreatedOrder.save();
+    console.log('Order saved successfully:', savedOrder._id);
+    const verifyOrder = await Order.findById(savedOrder._id);
+    console.log('Verify order exists:', verifyOrder ? 'YES' : 'NO');
+    } catch (err) {
+    console.error("Error when saving order:", err);
+    }
+    const body = createPaymentEndpoint(paramVnpay, res);
+    res.status(200).json(body)
   } catch (e) {
     console.log(e);
     res.status(500).json({

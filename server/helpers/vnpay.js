@@ -60,10 +60,6 @@ function getCurrentDateTime() {
   return moment().format("YYYYMMDDHHmmss");
 }
 
-function getExpireDateTime() {
-  return moment().add(15, "minutes").format("YYYYMMDDHHmmss");
-}
-
 function createPaymentUrl(amount, bankCode, userId) {
   const vnpParams = {
     vnp_Version: "2.1.0",
@@ -118,10 +114,12 @@ function createPaymentEndpoint(req, res) {
       userId
     );
 
-    res.status(200).json({
+    const inforPayment = {
       success: true,
-      paymentUrl: paymentUrl,
-    });
+      paymentUrl: paymentUrl
+    }
+
+    return inforPayment;
   } catch (error) {
     console.error("Create payment error:", error);
     res.status(500).json({

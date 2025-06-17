@@ -3,10 +3,15 @@ import img from "../../assets/account.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createNewOrder } from "@/store/shop/order-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from "@/utils/formatCurrency";
+import moment from 'moment'
+function getCurrentDateTime() {
+  return moment().format("YYYYMMDDHHmmss");
+}
+
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -18,6 +23,58 @@ function ShoppingCheckout() {
   const { toast } = useToast();
 
   console.log(currentSelectedAddress, "cartItems");
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const vnpResponseCode = urlParams.get('vnp_ResponseCode');
+    const vnpTransactionStatus = urlParams.get('vnp_TransactionStatus');
+    const vnpAmount = urlParams.get('vnp_Amount');
+    const vnpOrderInfo = urlParams.get('vnp_OrderInfo');
+    const vnpPayDate = urlParams.get('vnp_PayDate');
+    const vnpTransactionNo = urlParams.get('vnp_TransactionNo');
+    const vnpTxnRef = urlParams.get('vnp_TxnRef');
+    const vnpSecureHash = urlParams.get('vnp_SecureHash');
+    console.log("responsecode: " + vnpResponseCode)
+
+    if (vnpResponseCode == '00') {
+      console.log('VNPAY Payment Response:', {
+        responseCode: vnpResponseCode,
+        transactionStatus: vnpTransactionStatus,
+        amount: vnpAmount,
+        orderInfo: vnpOrderInfo,
+        payDate: vnpPayDate,
+        transactionNo: vnpTransactionNo,
+        txnRef: vnpTxnRef,
+        secureHash: vnpSecureHash
+      });
+
+      if (vnpResponseCode === '00' && vnpTransactionStatus === '00') {
+
+        toast({
+          title: "Thanh toán thành công!",
+          description: `Giao dịch ${vnpTransactionNo} đã được xử lý thành công.`,
+          variant: "default",
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+      } else {
+        toast({
+          title: "Thanh toán thất bại!",
+          description: "Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.",
+          variant: "destructive",
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+    else if(vnpResponseCode === '24'){
+      toast({
+          title: "Thanh toán thất bại!",
+          description: "",
+          variant: "destructive",
+        });
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [toast]);
 
   const totalCartAmount =
     cartItems && cartItems.items && cartItems.items.length > 0
@@ -77,13 +134,17 @@ function ShoppingCheckout() {
       totalAmount: totalCartAmount,
       orderDate: new Date(),
       orderUpdateDate: new Date(),
-      paymentId: "",
+      paymentId: user?.id + '_' + getCurrentDateTime(),
       payerId: "",
     };
 
+    console.log(orderData)
+
     dispatch(createNewOrder(orderData)).then((data) => {
-      console.log(data, "sangam");
+      console.log("data response: ", data)
       if (data?.payload?.success) {
+        const urlPaymentVNPAY = data.payload.paymentUrl
+        window.location.href = urlPaymentVNPAY;
         setIsPaymemntStart(true);
       } else {
         setIsPaymemntStart(false);

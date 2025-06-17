@@ -17,8 +17,6 @@ export const createNewOrder = createAsyncThunk(
       "http://localhost:5000/api/shop/order/create",
       orderData
     );
-    const urlPayment = response.data.paymentUrl;
-    window.open(urlPayment, " _blank");
     return response.data;
   }
 );
