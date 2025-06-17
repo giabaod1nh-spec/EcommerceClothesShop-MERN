@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { createNewOrder } from "@/store/shop/order-slice";
+import { createNewOrder, updatePaymentStatus } from "@/store/shop/order-slice";
 import { useToast } from "@/components/ui/use-toast";
 import { formatCurrency } from "@/utils/formatCurrency";
 import moment from "moment";
@@ -26,6 +26,7 @@ function ShoppingCheckout() {
   const navigate = useNavigate();
 
   console.log(currentSelectedAddress, "cartItems");
+  const orderId = localStorage.getItem("currentOrderId")
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -43,7 +44,8 @@ function ShoppingCheckout() {
 
       if (vnpResponseCode === "00" && vnpTransactionStatus === "00") {
         // Extract the order ID from local storage
-        const orderId = localStorage.getItem("currentOrderId");
+        const inforUpdate = {orderId: orderId}
+        dispatch(updatePaymentStatus(inforUpdate)).then(()=>{})
 
         if (orderId) {
           // If no orderId, just clear cart and show success
@@ -60,6 +62,7 @@ function ShoppingCheckout() {
             navigate("/shop/checkout");
           });
         }
+        localStorage.removeItem('currentOrderId');
       } else {
         toast({
           title: "Thanh toán thất bại!",
@@ -136,13 +139,14 @@ function ShoppingCheckout() {
         notes: currentSelectedAddress?.notes || "",
       },
       orderStatus: "pending",
-      paymentMethod: "paypal",
-      paymentStatus: "pending",
+      paymentMethod: "VNPAY",
+      paymentStatus: "unpaid",
       totalAmount: totalCartAmount,
       orderDate: new Date(),
       orderUpdateDate: new Date(),
       paymentId: user?.id + "_" + getCurrentDateTime(),
       payerId: "",
+      orderId: orderId
     };
 
     console.log(orderData);

@@ -24,6 +24,8 @@ const createOrder = async (req, res) => {
       cartId,
     } = req.body;
 
+    var orderId = req.body.orderId;
+
     const paramVnpay = {
       amount: req.body.totalAmount,
       bankCode: "",
@@ -44,23 +46,13 @@ const createOrder = async (req, res) => {
       paymentId,
       payerId,
     });
-    // const checkPayment = handlePaymentReturn(paramVnpay, res);
-    // if(checkPayment.res.status){
-    //   await newlyCreatedOrder.save();
-    // }
-    // await newlyCreatedOrder.save();
-    // console.log("add order to db")
 
-    try {
-      console.log("Order data before save:", newlyCreatedOrder);
-      const savedOrder = await newlyCreatedOrder.save();
-      console.log("Order saved successfully:", savedOrder._id);
-      const verifyOrder = await Order.findById(savedOrder._id);
-      console.log("Verify order exists:", verifyOrder ? "YES" : "NO");
-    } catch (err) {
-      console.error("Error when saving order:", err);
+    const order = await Order.findById(orderId);
+    if(!order){
+      const newOrder = await newlyCreatedOrder.save()
+      orderId = newOrder._id;
     }
-    const body = createPaymentEndpoint(paramVnpay, res);
+    const body = createPaymentEndpoint(paramVnpay, res, orderId);
     res.status(200).json(body);
   } catch (e) {
     console.log(e);
@@ -140,10 +132,37 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
+const updateOrderStatus = async (req, res) => {
+  try {
+    const id = req.body.orderId;
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found!",
+      });
+    }
+
+    await Order.findByIdAndUpdate(id, { paymentStatus : 'paid' });
+
+    res.status(200).json({
+      success: true,
+      message: "Order status is updated successfully!",
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Some error occured!",
+    });
+  }
+}; 
+
 module.exports = {
   createOrder,
   capturePayment,
   getAllOrdersByUser,
   getOrderDetails,
-
+  updateOrderStatus
 };

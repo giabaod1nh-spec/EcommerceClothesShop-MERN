@@ -91,7 +91,7 @@ function createPaymentUrl(amount, bankCode, userId) {
   return paymentUrl;
 }
 
-function createPaymentEndpoint(req, res) {
+function createPaymentEndpoint(req, res, orderId) {
   try {
     const { amount, bankCode, userId, orderType = "other" } = req;
     if (!amount || amount <= 0) {
@@ -116,7 +116,8 @@ function createPaymentEndpoint(req, res) {
 
     const inforPayment = {
       success: true,
-      paymentUrl: paymentUrl
+      paymentUrl: paymentUrl,
+      orderId: orderId
     }
 
     return inforPayment;

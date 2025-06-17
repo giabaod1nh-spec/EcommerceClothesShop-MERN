@@ -10,6 +10,17 @@ const initialState = {
   orderDetails: null,
 };
 
+export const updatePaymentStatus = createAsyncThunk(
+  "/order/updatePaymentStatus",
+  async (infor) =>{
+    const response = await axios.put(
+      "http://localhost:5000/api/shop/order/updatePaymentStatus",
+      infor
+    );
+    return response.data
+  }
+)
+
 export const createNewOrder = createAsyncThunk(
   "/order/createNewOrder",
   async (orderData) => {

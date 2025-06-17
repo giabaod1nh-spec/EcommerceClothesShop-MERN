@@ -5,6 +5,7 @@ const {
   getAllOrdersByUser,
   getOrderDetails,
   capturePayment,
+  updateOrderStatus
 
 } = require("../../controllers/shop/order-controller");
 //const getReturnUrl = require('../../helpers/vnpay')
@@ -15,6 +16,6 @@ router.post("/create", createOrder);
 router.post("/capture", capturePayment);
 router.get("/list/:userId", getAllOrdersByUser);
 router.get("/details/:id", getOrderDetails);
-//router.get("/return", getReturnUrl)
+router.put("/updatePaymentStatus", updateOrderStatus)
 
 module.exports = router;
